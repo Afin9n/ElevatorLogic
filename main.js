@@ -43,7 +43,7 @@ class People {
         this.target = rectangle;
         this.targetText = text;
     }
-    PeopleMoveHorizontal(moveTo, timeAnimation, callback = null) {
+    MoveHorizontal(moveTo, timeAnimation, callback = null) {
         let target = this.target;
         let targetText = this.targetText;
         let elem = { x: this.target.position.x, target: this.target, targetText: this.targetText };
@@ -65,11 +65,11 @@ class People {
         });
         animate();
     }
-    static DeletePeople(target, targetText) {
+    static Delete(target, targetText) {
         target.destroy();
         targetText.destroy();
     }
-    static PeopleMoveVertical(moveUp) {
+    static MoveVertical(moveUp) {
         for (let i = 0; i < arrayElevator.length; i++) {
             let elem = { y: arrayElevator[i].target.position.y, target: arrayElevator[i].target, targetText: arrayElevator[i].targetText };
             let updateCallback = function (object) {
@@ -86,15 +86,15 @@ class People {
         }
     }
     MoveInElevator(position) {
-        this.PeopleMoveHorizontal(65 + ((arrayElevator.length - 1) * 45), 800);
+        this.MoveHorizontal(65 + ((arrayElevator.length - 1) * 45), 800);
         arrayOfPeople[this.floorCreating].splice(position, 1);
     }
     MoveOutOfElevator() {
-        this.PeopleMoveHorizontal(this.target.position.x + width - 240, 3500, People.DeletePeople);
+        this.MoveHorizontal(this.target.position.x + width - 240, 3500, People.Delete);
     }
 }
 class Elevator {
-    static CreateElevator() {
+    static Create() {
         let rectangle = new PIXI.Graphics();
         rectangle.lineStyle(4, 0x00FFFF, 1);
         rectangle.drawRect(0, 0, 180, ((height - 100) / countFloor) - 5);
@@ -110,7 +110,7 @@ class Elevator {
         this.elevator = rectangle;
         this.elevatorDoor = line;
     }
-    static ElevatorLogic() {
+    static Logic() {
         let elevatorStop = false;
         for (let i = 0; i < arrayElevator.length; i++) {
             if (arrayElevator[i].floorDestination === elevatorFloor) {
@@ -121,7 +121,7 @@ class Elevator {
             }
         }
         for (let i = 0; i < arrayElevator.length; i++) {
-            arrayElevator[i].PeopleMoveHorizontal(65 + i * 45, 500);
+            arrayElevator[i].MoveHorizontal(65 + i * 45, 500);
         }
         if (elevatorFloor === countFloor) {
             moveUp = false;
@@ -142,19 +142,19 @@ class Elevator {
                 }
             }
             for (let i = 0; i < arrayOfPeople[elevatorFloor].length; i++) {
-                arrayOfPeople[elevatorFloor][i].PeopleMoveHorizontal(260 + i * 50, 500);
+                arrayOfPeople[elevatorFloor][i].MoveHorizontal(260 + i * 50, 500);
             }
         }
         if (elevatorStop) {
             setTimeout(function () {
-                moveUp ? Elevator.ElevatorMove(1) : Elevator.ElevatorMove(-1);
+                moveUp ? Elevator.Move(1) : Elevator.Move(-1);
             }, 800);
         }
         else {
-            moveUp ? Elevator.ElevatorMove(1) : Elevator.ElevatorMove(-1);
+            moveUp ? Elevator.Move(1) : Elevator.Move(-1);
         }
     }
-    static ElevatorMove(moveUp) {
+    static Move(moveUp) {
         let elemElevator = { y: this.elevator.position.y, target: this.elevator };
         let updateCallback = function (object) {
             object.target.position.y = object.y;
@@ -166,11 +166,11 @@ class Elevator {
             .onUpdate(updateCallback)
             .easing(TWEEN.Easing.Linear.None)
             .start();
-        People.PeopleMoveVertical(moveUp);
+        People.MoveVertical(moveUp);
         tween.onComplete(function () {
             tween.stop();
             elevatorFloor += moveUp;
-            Elevator.ElevatorLogic();
+            Elevator.Logic();
         });
         animate();
     }
@@ -194,8 +194,8 @@ class Main {
             app.stage.addChild(line);
             app.stage.addChild(text);
         }
-        Elevator.CreateElevator();
-        Elevator.ElevatorLogic();
+        Elevator.Create();
+        Elevator.Logic();
         Main.InfinityCreatePeopleOnEveryFloor();
     }
     static InfinityCreatePeopleOnEveryFloor() {
@@ -213,10 +213,10 @@ class Main {
             function PushPeopleCallback() {
                 arrayOfPeople[floor].push(people);
                 setTimeout(function () {
-                    people.PeopleMoveHorizontal(260 + (arrayOfPeople[floor].length - 1) * 50, 500);
+                    people.MoveHorizontal(260 + (arrayOfPeople[floor].length - 1) * 50, 500);
                 }, 100);
             }
-            people.PeopleMoveHorizontal(260 + arrayOfPeople[floor].length * 50, 3500, PushPeopleCallback);
+            people.MoveHorizontal(260 + arrayOfPeople[floor].length * 50, 3500, PushPeopleCallback);
             Main.InfinityCreatePeople(floor);
         }, Math.floor(Math.random() * 6000 + 4000));
     }
